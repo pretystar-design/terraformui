@@ -1,0 +1,49 @@
+name: Terraform Visual Generate
+
+description: Validate and generate Terraform HCL from a visual model
+
+inputs:
+  model-file:
+    description: Path to the model JSON file
+    required: true
+    default: model.json
+  command:
+    description: Command to run (validate or generate)
+    required: false
+    default: validate
+  output-dir:
+    description: Output directory for generated files
+    required: false
+    default: ./tf
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.22'
+
+    - name: Build CLI
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}/../cli
+        go build -o tfg .
+        mv tfg $RUNNER_TEMP/
+
+    - name: Validate model
+      if: inputs.command == 'validate'
+      shell: bash
+      run: $RUNNER_TEMP/tfg validate ${{ inputs.model-file }}
+
+    - name: Generate Terraform
+      if: inputs.command == 'generate'
+      shell: bash
+      run: $RUNNER_TEMP/tfg generate ${{ inputs.model-file }} --output ${{ inputs.output-dir }}
+
+    - name: Upload generated files
+      if: inputs.command == 'generate'
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-files
+        path: ${{ inputs.output-dir }}
