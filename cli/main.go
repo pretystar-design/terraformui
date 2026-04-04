@@ -9,6 +9,20 @@ import (
 	"strings"
 )
 
+type Node struct {
+	ID         string            `json:"id"`
+	Type       string            `json:"type"`
+	Label      string            `json:"label"`
+	Provider   string            `json:"provider"`
+	Attributes map[string]string `json:"attributes"`
+}
+
+type Edge struct {
+	ID     string `json:"id"`
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
 type CLIProject struct {
 	Nodes     []Node   `json:"nodes"`
 	Edges     []Edge   `json:"edges"`
