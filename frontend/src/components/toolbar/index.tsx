@@ -14,9 +14,12 @@ import {
   FileJson,
   CheckCircle,
   AlertCircle,
+  LogOut,
+  User,
 } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvas-store'
 import { useProjectStore } from '@/store/project-store'
+import { useAuthStore } from '@/store/auth-store'
 import { useHCLPreview } from '@/hooks/use-hcl-preview'
 import { exportAsTF, exportAsZIP } from '@/lib/export'
 import { validateNodes } from '@/lib/validation'
@@ -39,6 +42,8 @@ export function Toolbar() {
   const saveCurrentProject = useProjectStore((s) => s.saveCurrentProject)
   const saveStatus = useProjectStore((s) => s.saveStatus)
   const { hcl } = useHCLPreview()
+  const user = useAuthStore((s) => s.user)
+  const logout = useAuthStore((s) => s.logout)
 
   const [showImport, setShowImport] = useState(false)
   const [validationResult, setValidationResult] = useState<ReturnType<typeof validateNodes> | null>(null)
@@ -165,6 +170,21 @@ export function Toolbar() {
             className="rounded p-1.5 hover:bg-accent"
           >
             <Globe className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 border-l pl-3">
+          <div className="flex items-center gap-1.5 rounded px-2 py-1 text-xs">
+            <User className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="font-medium">{user?.name || 'Guest'}</span>
+            <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{user?.role}</span>
+          </div>
+          <button
+            onClick={logout}
+            title="Logout"
+            className="rounded p-1.5 hover:bg-accent"
+          >
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
       </div>

@@ -60,10 +60,21 @@ type PlanResponse struct {
 	Output  string `json:"output"`
 }
 
+var sessionStore *SessionStore
+var auditLog *AuditLog
+
 func main() {
-	http.HandleFunc("/api/generate", handleGenerate)
-	http.HandleFunc("/api/validate", handleValidate)
-	http.HandleFunc("/api/plan", handlePlan)
+	sessionStore = NewSessionStore()
+	auditLog = NewAuditLog("audit-log.json")
+
+	http.HandleFunc("/api/login", handleLogin(sessionStore))
+	http.HandleFunc("/api/logout", handleLogout(sessionStore))
+	http.HandleFunc("/api/whoami", handleWhoami(sessionStore))
+	http.HandleFunc("/api/keys", handleAPIKeys(sessionStore))
+	http.HandleFunc("/api/audit", AuthMiddleware(sessionStore, handleAuditLog(sessionStore, auditLog)))
+	http.HandleFunc("/api/generate", APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handleGenerate)))
+	http.HandleFunc("/api/validate", APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handleValidate)))
+	http.HandleFunc("/api/plan", APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handlePlan)))
 	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprint(w, `{"status":"ok"}`)
