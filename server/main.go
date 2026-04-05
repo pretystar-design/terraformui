@@ -11,6 +11,35 @@ import (
 	"strings"
 )
 
+// jsonError writes a JSON error response.
+func jsonError(w http.ResponseWriter, message string, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
+}
+
+// corsMiddleware adds CORS headers for frontend development.
+func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Max-Age", "86400")
+		}
+
+		// Handle preflight
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+
+		next(w, r)
+	}
+}
+
 type Node struct {
 	ID         string            `json:"id"`
 	Type       string            `json:"type"`
@@ -67,25 +96,27 @@ func main() {
 	sessionStore = NewSessionStore()
 	auditLog = NewAuditLog("audit-log.json")
 
-	http.HandleFunc("/api/login", handleLogin(sessionStore))
-	http.HandleFunc("/api/logout", handleLogout(sessionStore))
-	http.HandleFunc("/api/whoami", handleWhoami(sessionStore))
-	http.HandleFunc("/api/keys", handleAPIKeys(sessionStore))
-	http.HandleFunc("/api/audit", AuthMiddleware(sessionStore, handleAuditLog(sessionStore, auditLog)))
-	http.HandleFunc("/api/generate", APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handleGenerate)))
-	http.HandleFunc("/api/validate", APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handleValidate)))
-	http.HandleFunc("/api/plan", APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handlePlan)))
-	http.HandleFunc("/api/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/api/login", corsMiddleware(handleLogin(sessionStore)))
+	mux.HandleFunc("/api/logout", corsMiddleware(handleLogout(sessionStore)))
+	mux.HandleFunc("/api/whoami", corsMiddleware(handleWhoami(sessionStore)))
+	mux.HandleFunc("/api/keys", corsMiddleware(handleAPIKeys(sessionStore)))
+	mux.HandleFunc("/api/audit", corsMiddleware(AuthMiddleware(sessionStore, handleAuditLog(sessionStore, auditLog))))
+	mux.HandleFunc("/api/generate", corsMiddleware(APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handleGenerate))))
+	mux.HandleFunc("/api/validate", corsMiddleware(APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handleValidate))))
+	mux.HandleFunc("/api/plan", corsMiddleware(APIKeyMiddleware(sessionStore, AuditMiddleware(sessionStore, auditLog, handlePlan))))
+	mux.HandleFunc("/api/health", corsMiddleware(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprint(w, `{"status":"ok"}`)
-	})
+	}))
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 	fmt.Printf("Server starting on :%s\n", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
 		fmt.Fprintf(os.Stderr, "server error: %v\n", err)
 		os.Exit(1)
 	}
@@ -93,20 +124,20 @@ func main() {
 
 func handleGenerate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "failed to read body", http.StatusBadRequest)
+		jsonError(w, "failed to read body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
 	var req GenerateRequest
 	if err := json.Unmarshal(body, &req); err != nil {
-		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		jsonError(w, "invalid JSON", http.StatusBadRequest)
 		return
 	}
 
@@ -117,20 +148,20 @@ func handleGenerate(w http.ResponseWriter, r *http.Request) {
 
 func handleValidate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "failed to read body", http.StatusBadRequest)
+		jsonError(w, "failed to read body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
 	var req GenerateRequest
 	if err := json.Unmarshal(body, &req); err != nil {
-		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		jsonError(w, "invalid JSON", http.StatusBadRequest)
 		return
 	}
 
@@ -142,20 +173,20 @@ func handleValidate(w http.ResponseWriter, r *http.Request) {
 
 func handlePlan(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		jsonError(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "failed to read body", http.StatusBadRequest)
+		jsonError(w, "failed to read body", http.StatusBadRequest)
 		return
 	}
 	defer r.Body.Close()
 
 	var req GenerateRequest
 	if err := json.Unmarshal(body, &req); err != nil {
-		http.Error(w, "invalid JSON", http.StatusBadRequest)
+		jsonError(w, "invalid JSON", http.StatusBadRequest)
 		return
 	}
 

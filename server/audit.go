@@ -126,13 +126,12 @@ func handleAuditLog(store *SessionStore, log *AuditLog) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		session, ok := SessionFromContext(r.Context())
 		if !ok {
-			http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+			jsonError(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		// Only admins can view full audit log
 		if session.Role != "admin" {
-			http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
+			jsonError(w, "forbidden", http.StatusForbidden)
 			return
 		}
 
@@ -145,4 +144,5 @@ func handleAuditLog(store *SessionStore, log *AuditLog) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(entries)
 	}
+}
 }
