@@ -1,11 +1,11 @@
 import { useCallback, useMemo } from 'react'
 import ReactFlow, {
   Background,
-  Controls,
-  MiniMap,
+  BackgroundVariant,
   type OnConnect,
   type Node,
   type Edge,
+  MarkerType,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import { useCanvasStore } from '@/store/canvas-store'
@@ -13,10 +13,12 @@ import { useKeyboardShortcuts } from '@/hooks'
 import { providerCatalog } from '@/lib/provider-data'
 
 const nodeTypeLabels: Record<string, string> = {}
+const nodeTypeIcons: Record<string, string> = {}
 for (const catalog of providerCatalog) {
   for (const resources of Object.values(catalog.services)) {
     for (const resource of resources) {
       nodeTypeLabels[resource.type] = resource.name
+      nodeTypeIcons[resource.type] = resource.provider === 'aws' ? '🟠' : resource.provider === 'azure' ? '🔵' : '🟢'
     }
   }
 }
@@ -60,6 +62,11 @@ export function Canvas() {
         target: e.target,
         label: e.label,
         animated: e.type === 'dependency',
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 16,
+          height: 16,
+        },
       })),
     [storeEdges],
   )
@@ -124,10 +131,18 @@ export function Canvas() {
           updateNodePosition(node.id, node.position)
         }}
         fitView
+        defaultEdgeOptions={{
+          type: 'smoothstep',
+          animated: true,
+        }}
       >
-        <Background />
-        <Controls />
-        <MiniMap />
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={24}
+          size={1}
+          color="var(--border)"
+          style={{ opacity: 0.3 }}
+        />
       </ReactFlow>
     </div>
   )

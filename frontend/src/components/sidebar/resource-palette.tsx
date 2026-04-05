@@ -3,6 +3,19 @@ import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
 import { providerCatalog, searchResources } from '@/lib/provider-data'
 
+// Provider icon mapping
+const providerIcons: Record<string, string> = {
+  aws: '🟠',
+  azure: '🔵',
+  gcp: '🟢',
+}
+
+const providerIconClasses: Record<string, string> = {
+  aws: 'resource-icon-aws',
+  azure: 'resource-icon-azure',
+  gcp: 'resource-icon-gcp',
+}
+
 export function ResourcePalette() {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
@@ -19,59 +32,64 @@ export function ResourcePalette() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b p-3">
+      {/* Search */}
+      <div className="border-b p-3" style={{ borderColor: 'var(--border)' }}>
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
           <input
             type="text"
             placeholder={t('sidebar.search')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-md border bg-background pl-8 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            className="search-input w-full h-[34px] rounded-md border bg-[var(--bg-input)] pl-8 pr-3 text-[13px] text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--accent)]"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
           />
         </div>
       </div>
 
+      {/* Provider tabs */}
       {!query && (
-        <div className="flex border-b">
+        <div className="flex border-b" style={{ borderColor: 'var(--border)' }}>
           {providerCatalog.map((c) => (
             <button
               key={c.provider}
               onClick={() => setActiveProvider(c.provider)}
-              className={`flex-1 px-3 py-2 text-xs font-medium uppercase transition-colors ${
+              className={`provider-tab flex-1 py-2.5 text-center text-[11px] font-semibold uppercase tracking-[0.8px] transition-all duration-150 border-b-2 ${
                 activeProvider === c.provider
-                  ? 'border-b-2 border-primary text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'provider-tab-active'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
+              style={{ borderColor: activeProvider === c.provider ? 'var(--accent)' : 'transparent' }}
             >
-              {t(`sidebar.${c.provider}`)}
+              {c.provider}
             </button>
           ))}
         </div>
       )}
 
-      <div className="flex-1 overflow-y-auto p-2">
+      {/* Resource list */}
+      <div className="flex-1 overflow-y-auto p-2.5">
         {filtered
           ? filtered.map((r) => (
               <div
                 key={r.type}
                 draggable
                 onDragStart={(e) => handleDragStart(e, r.type, r.provider)}
-                className="mb-1 flex cursor-grab items-center gap-2 rounded-md border bg-card p-2 text-sm hover:bg-accent active:cursor-grabbing"
+                className="mb-0.5 flex cursor-grab items-center gap-2.5 rounded p-2 text-sm transition-all duration-120 hover:bg-[var(--bg-card)] active:cursor-grabbing"
               >
-                <div className="h-6 w-6 shrink-0 rounded bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                  {r.provider[0].toUpperCase()}
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded text-sm ${providerIconClasses[r.provider] || ''}`}>
+                  {providerIcons[r.provider] || r.provider[0].toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate font-medium">{r.name}</div>
-                  <div className="truncate text-xs text-muted-foreground">{r.type}</div>
+                  <div className="truncate font-medium text-[var(--text-primary)] text-[12px]">{r.name}</div>
+                  <div className="truncate text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-muted)' }}>{r.type}</div>
                 </div>
               </div>
             ))
           : catalogs.map((catalog) =>
               Object.entries(catalog.services).map(([service, resources]) => (
                 <div key={`${catalog.provider}-${service}`} className="mb-3">
-                  <h4 className="mb-1 px-1 text-xs font-semibold uppercase text-muted-foreground">
+                  <h4 className="mb-1.5 px-1.5 text-[10px] font-semibold uppercase tracking-[1px]" style={{ color: 'var(--text-muted)', letterSpacing: '1px' }}>
                     {service}
                   </h4>
                   {resources.map((r) => (
@@ -79,14 +97,14 @@ export function ResourcePalette() {
                       key={r.type}
                       draggable
                       onDragStart={(e) => handleDragStart(e, r.type, r.provider)}
-                      className="mb-1 flex cursor-grab items-center gap-2 rounded-md border bg-card p-2 text-sm hover:bg-accent active:cursor-grabbing"
+                      className="mb-0.5 flex cursor-grab items-center gap-2.5 rounded p-2 text-sm transition-all duration-120 hover:bg-[var(--bg-card)] active:cursor-grabbing"
                     >
-                      <div className="h-6 w-6 shrink-0 rounded bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                        {r.provider[0].toUpperCase()}
+                      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded text-sm ${providerIconClasses[r.provider] || ''}`}>
+                        {providerIcons[r.provider] || r.provider[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate font-medium">{r.name}</div>
-                        <div className="truncate text-xs text-muted-foreground">{r.type}</div>
+                        <div className="truncate font-medium text-[var(--text-primary)] text-[12px]">{r.name}</div>
+                        <div className="truncate text-[10px]" style={{ fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-muted)' }}>{r.type}</div>
                       </div>
                     </div>
                   ))}

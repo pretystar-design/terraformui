@@ -7,7 +7,7 @@ export function PreviewPanel() {
   if (!show) return null
 
   return (
-    <div className="h-64 shrink-0 border-t bg-background">
+    <div className="h-[200px] shrink-0 border-t" style={{ borderTop: '1px solid var(--border)' }}>
       <HCLPreview />
     </div>
   )

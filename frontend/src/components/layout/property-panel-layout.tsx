@@ -7,7 +7,7 @@ export function PropertyPanelLayout() {
   if (!show) return null
 
   return (
-    <div className="w-80 shrink-0 border-l bg-background">
+    <div className="w-[300px] shrink-0 border-l" style={{ borderLeft: '1px solid var(--border)' }}>
       <PropertyPanel />
     </div>
   )

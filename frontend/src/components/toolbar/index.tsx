@@ -15,7 +15,6 @@ import {
   CheckCircle,
   AlertCircle,
   LogOut,
-  User,
 } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvas-store'
 import { useProjectStore } from '@/store/project-store'
@@ -81,117 +80,113 @@ export function Toolbar() {
     i18n.changeLanguage(i18n.language === 'en' ? 'zh' : 'en')
   }
 
+  const userInitials = user?.name
+    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    : '??'
+
   return (
     <>
-      <div className="flex h-12 shrink-0 items-center justify-between border-b bg-background px-3">
+      <div className="flex h-[52px] shrink-0 items-center justify-between border-b bg-[var(--bg-toolbar)] px-4 relative"
+        style={{ borderBottom: '1px solid var(--border)' }}>
+        {/* Gradient accent line */}
+        <div className="absolute bottom-[-1px] left-0 right-0 h-[1px]"
+          style={{ background: 'linear-gradient(90deg, var(--accent) 0%, transparent 60%)', opacity: 0.4 }} />
+
+        {/* Logo + Undo/Redo */}
         <div className="flex items-center gap-1">
-          <span className="mr-3 font-bold text-primary">TF Visual</span>
-          <button onClick={undo} title={t('toolbar.undo')} className="rounded p-1.5 hover:bg-accent">
+          <span className="mr-4 font-bold text-[var(--accent-light)]" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.5px', fontSize: '16px' }}>
+            TF Visual
+          </span>
+          <button onClick={undo} title={t('toolbar.undo')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <Undo2 className="h-4 w-4" />
           </button>
-          <button onClick={redo} title={t('toolbar.redo')} className="rounded p-1.5 hover:bg-accent">
+          <button onClick={redo} title={t('toolbar.redo')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <Redo2 className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            onClick={toggleSidebar}
-            title="Toggle sidebar"
-            className={`rounded p-1.5 hover:bg-accent ${showSidebar ? 'text-primary' : ''}`}
-          >
+        {/* Panel toggles */}
+        <div className="flex items-center gap-[2px]">
+          <button onClick={toggleSidebar} title="Toggle sidebar"
+            className={`flex h-[34px] w-[34px] items-center justify-center rounded transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)] ${showSidebar ? 'text-[var(--accent-light)] bg-[var(--accent-dim)]' : 'text-[var(--text-secondary)]'}`}>
             <PanelLeft className="h-4 w-4" />
           </button>
-          <button
-            onClick={togglePreview}
-            title="Toggle preview"
-            className={`rounded p-1.5 hover:bg-accent ${showPreview ? 'text-primary' : ''}`}
-          >
+          <button onClick={togglePreview} title="Toggle preview"
+            className={`flex h-[34px] w-[34px] items-center justify-center rounded transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)] ${showPreview ? 'text-[var(--accent-light)] bg-[var(--accent-dim)]' : 'text-[var(--text-secondary)]'}`}>
             <Eye className="h-4 w-4" />
           </button>
-          <button
-            onClick={togglePropertyPanel}
-            title="Toggle property panel"
-            className={`rounded p-1.5 hover:bg-accent ${showPropertyPanel ? 'text-primary' : ''}`}
-          >
+          <button onClick={togglePropertyPanel} title="Toggle property panel"
+            className={`flex h-[34px] w-[34px] items-center justify-center rounded transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)] ${showPropertyPanel ? 'text-[var(--accent-light)] bg-[var(--accent-dim)]' : 'text-[var(--text-secondary)]'}`}>
             <PanelRight className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-1">
-          <button
-            onClick={handleExportTF}
-            title={t('toolbar.export.tf')}
-            className="rounded p-1.5 hover:bg-accent"
-          >
+        {/* Actions */}
+        <div className="flex items-center gap-[2px]">
+          <button onClick={handleExportTF} title={t('toolbar.export.tf')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <FileJson className="h-4 w-4" />
           </button>
-          <button
-            onClick={handleExportZIP}
-            title={t('toolbar.export.zip')}
-            className="rounded p-1.5 hover:bg-accent"
-          >
+          <button onClick={handleExportZIP} title={t('toolbar.export.zip')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <Download className="h-4 w-4" />
           </button>
-          <button
-            onClick={handleValidate}
-            title={t('toolbar.validate')}
-            className="rounded p-1.5 hover:bg-accent relative"
-          >
+          <button onClick={handleValidate} title={t('toolbar.validate')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)] relative">
             {validating ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
             ) : validationResult ? (
               validationResult.valid ? (
-                <CheckCircle className="h-4 w-4 text-green-500" />
+                <CheckCircle className="h-4 w-4 text-[var(--green)]" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-red-500" />
+                <AlertCircle className="h-4 w-4 text-[var(--red)]" />
               )
             ) : (
               <ShieldCheck className="h-4 w-4" />
             )}
           </button>
-          <button
-            onClick={() => setShowImport(true)}
-            title={t('toolbar.import.tfstate')}
-            className="rounded p-1.5 hover:bg-accent"
-          >
+          <button onClick={() => setShowImport(true)} title={t('toolbar.import.tfstate')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <FileUp className="h-4 w-4" />
           </button>
-          <button
-            onClick={saveCurrentProject}
-            title={t('toolbar.save')}
-            className="rounded p-1.5 hover:bg-accent"
-          >
-            <Save className={`h-4 w-4 ${saveStatus === 'saved' ? 'text-green-500' : ''}`} />
+          <button onClick={saveCurrentProject} title={t('toolbar.save')}
+            className="flex h-[34px] w-[34px] items-center justify-center rounded transition-all duration-150 hover:bg-[var(--accent-dim)]">
+            <Save className={`h-4 w-4 ${saveStatus === 'saved' ? 'text-[var(--green)]' : 'text-[var(--text-secondary)]'}`} />
           </button>
-          <button
-            onClick={toggleLang}
-            title="Toggle language"
-            className="rounded p-1.5 hover:bg-accent"
-          >
+          <button onClick={toggleLang} title="Toggle language"
+            className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <Globe className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2 border-l pl-3">
-          <div className="flex items-center gap-1.5 rounded px-2 py-1 text-xs">
-            <User className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="font-medium">{user?.name || 'Guest'}</span>
-            <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{user?.role}</span>
+        {/* User menu */}
+        <div className="flex items-center gap-2.5 border-l pl-4" style={{ borderColor: 'var(--border)' }}>
+          <div className="flex items-center gap-2 rounded px-2 py-1 text-xs">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+              style={{ background: 'linear-gradient(135deg, var(--accent), #a855f7)' }}>
+              {userInitials}
+            </div>
+            <span className="font-semibold text-[var(--text-primary)] text-[12px]">{user?.name || 'Guest'}</span>
+            {user?.role && (
+              <span className="rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider"
+                style={{ background: 'var(--green-dim)', color: 'var(--green)', letterSpacing: '0.5px' }}>
+                {user.role}
+              </span>
+            )}
           </div>
-          <button
-            onClick={logout}
-            title="Logout"
-            className="rounded p-1.5 hover:bg-accent"
-          >
-            <LogOut className="h-4 w-4" />
+          <button onClick={logout} title="Logout"
+            className="flex h-[30px] w-[30px] items-center justify-center rounded text-[var(--text-muted)] transition-all duration-150 hover:bg-[var(--red-dim)] hover:text-[var(--red)]">
+            <LogOut className="h-[15px] w-[15px]" />
           </button>
         </div>
       </div>
 
+      {/* Validation error bar */}
       {validationResult && !validationResult.valid && (
-        <div className="shrink-0 border-b bg-red-50 px-3 py-2">
-          <div className="flex items-center gap-2 text-sm text-red-700">
+        <div className="shrink-0 border-b bg-[var(--red-dim)] px-3 py-2">
+          <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--red)' }}>
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span className="font-medium">{validationResult.errors.length} error(s):</span>
             <span className="truncate">{validationResult.errors[0]?.message}</span>

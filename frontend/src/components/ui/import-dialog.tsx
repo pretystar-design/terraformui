@@ -54,19 +54,20 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-lg rounded-lg bg-background p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.6)' }}>
+      <div className="w-full max-w-lg rounded-lg p-6 shadow-2xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t('import.title')}</h2>
-          <button onClick={onClose} className="rounded p-1 hover:bg-accent">
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{t('import.title')}</h2>
+          <button onClick={onClose} className="rounded p-1 transition-colors hover:bg-[var(--accent-dim)] hover:text-[var(--text-primary)]" style={{ color: 'var(--text-muted)' }}>
             <X className="h-4 w-4" />
           </button>
         </div>
 
         <div
           className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-12 transition-colors ${
-            dragging ? 'border-primary bg-primary/5' : 'border-border'
+            dragging ? 'border-[var(--accent)]' : 'border-[var(--border)]'
           }`}
+          style={{ background: dragging ? 'var(--accent-dim)' : 'var(--bg-input)' }}
           onDragOver={(e) => {
             e.preventDefault()
             setDragging(true)
@@ -74,15 +75,15 @@ export function ImportDialog({ open, onClose }: ImportDialogProps) {
           onDragLeave={() => setDragging(false)}
           onDrop={handleDrop}
         >
-          <Upload className="mb-4 h-12 w-12 text-muted-foreground" />
-          <p className="mb-2 text-sm text-muted-foreground">{t('import.drop')}</p>
-          <label className="cursor-pointer text-sm text-primary underline">
+          <Upload className="mb-4 h-12 w-12" style={{ color: 'var(--text-muted)' }} />
+          <p className="mb-2 text-sm" style={{ color: 'var(--text-muted)' }}>{t('import.drop')}</p>
+          <label className="cursor-pointer text-sm underline" style={{ color: 'var(--accent-light)' }}>
             {t('import.browse')}
             <input type="file" accept=".json,.tfstate" className="hidden" onChange={handleChange} />
           </label>
         </div>
 
-        {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
+        {error && <p className="mt-3 text-sm" style={{ color: 'var(--red)' }}>{error}</p>}
       </div>
     </div>
   )
