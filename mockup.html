@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terraform Visual Gen — UI Mockup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-app: #0f1117;
+    --bg-toolbar: #161822;
+    --bg-sidebar: #13151d;
+    --bg-canvas: #1a1d2e;
+    --bg-panel: #13151d;
+    --bg-code: #0d0f17;
+    --bg-card: #1e2136;
+    --bg-input: #1a1d2e;
+    --border: #2a2d42;
+    --border-light: #353854;
+    --text-primary: #e8eaf6;
+    --text-secondary: #9ca3c7;
+    --text-muted: #6b7194;
+    --accent: #6366f1;
+    --accent-light: #818cf8;
+    --accent-dim: rgba(99, 102, 241, 0.15);
+    --green: #22c55e;
+    --green-dim: rgba(34, 197, 94, 0.15);
+    --orange: #f59e0b;
+    --orange-dim: rgba(245, 158, 11, 0.15);
+    --red: #ef4444;
+    --red-dim: rgba(239, 68, 68, 0.15);
+    --cyan: #06b6d4;
+    --cyan-dim: rgba(6, 182, 212, 0.15);
+    --radius: 8px;
+    --radius-sm: 4px;
+    --radius-lg: 12px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-app);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== TOOLBAR ===== */
+  .toolbar {
+    height: 52px;
+    background: var(--bg-toolbar);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .toolbar::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    opacity: 0.4;
+  }
+
+  .logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-light);
+    margin-right: 16px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo svg { width: 20px; height: 20px; }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 8px;
+  }
+
+  .tb-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .tb-btn:hover { background: var(--accent-dim); color: var(--accent-light); }
+  .tb-btn.active { color: var(--accent-light); background: var(--accent-dim); }
+  .tb-btn svg { width: 16px; height: 16px; }
+
+  .user-menu {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 16px;
+    border-left: 1px solid var(--border);
+  }
+
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .user-name { font-weight: 600; color: var(--text-primary); }
+
+  .user-role {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--green-dim);
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .logout-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logout-btn:hover { background: var(--red-dim); color: var(--red); }
+  .logout-btn svg { width: 15px; height: 15px; }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 260px;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-search {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-input {
+    width: 100%;
+    height: 34px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0 12px 0 34px;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  .search-wrap {
+    position: relative;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted);
+  }
+
+  .provider-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .provider-tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .provider-tab:hover { color: var(--text-secondary); }
+  .provider-tab.active {
+    color: var(--accent-light);
+    border-bottom-color: var(--accent);
+  }
+
+  .resource-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+  }
+
+  .resource-group-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 8px 6px 6px;
+  }
+
+  .resource-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    transition: all 0.12s;
+    margin-bottom: 2px;
+  }
+
+  .resource-item:hover {
+    background: var(--bg-card);
+  }
+
+  .resource-item:active { cursor: grabbing; }
+
+  .resource-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .resource-icon.aws { background: var(--orange-dim); color: var(--orange); }
+  .resource-icon.azure { background: var(--cyan-dim); color: var(--cyan); }
+  .resource-icon.gcp { background: var(--green-dim); color: var(--green); }
+
+  .resource-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .resource-type {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ===== CANVAS ===== */
+  .canvas-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--bg-canvas);
+    position: relative;
+  }
+
+  .canvas-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .canvas-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Canvas Nodes */
+  .canvas-node {
+    position: absolute;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    min-width: 180px;
+    cursor: move;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    z-index: 2;
+  }
+
+  .canvas-node:hover {
+    border-color: var(--border-light);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+
+  .canvas-node.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-dim), 0 4px 24px rgba(99, 102, 241, 0.15);
+  }
+
+  .canvas-node-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .canvas-node-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .canvas-node-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .canvas-node-type {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+  }
+
+  .canvas-node-attrs {
+    font-size: 11px;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .canvas-node-attr {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .canvas-node-attr-key {
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+
+  .canvas-node-attr-val {
+    color: var(--green);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+  }
+
+  /* Connection Handles */
+  .handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg-card);
+    z-index: 3;
+  }
+
+  .handle-top { top: -5px; left: 50%; transform: translateX(-50%); }
+  .handle-bottom { bottom: -5px; left: 50%; transform: translateX(-50%); }
+  .handle-left { left: -5px; top: 50%; transform: translateY(-50%); }
+  .handle-right { right: -5px; top: 50%; transform: translateY(-50%); }
+
+  /* SVG Edges */
+  .canvas-edges {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .canvas-edges line, .canvas-edges path {
+    stroke: var(--accent);
+    stroke-width: 2;
+    fill: none;
+    opacity: 0.6;
+  }
+
+  .canvas-edges .edge-arrow {
+    fill: var(--accent);
+    opacity: 0.6;
+  }
+
+  /* Canvas Controls */
+  .canvas-controls {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 5;
+  }
+
+  .canvas-ctrl-btn {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .canvas-ctrl-btn:hover { background: var(--accent-dim); color: var(--accent-light); }
+
+  .canvas-zoom {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    z-index: 5;
+  }
+
+  /* ===== HCL PREVIEW ===== */
+  .hcl-preview {
+    height: 200px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .hcl-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-panel);
+  }
+
+  .hcl-preview-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .hcl-preview-title svg { width: 14px; height: 14px; color: var(--accent-light); }
+
+  .hcl-copy-btn {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+
+  .hcl-copy-btn:hover { color: var(--text-primary); border-color: var(--border-light); }
+  .hcl-copy-btn svg { width: 12px; height: 12px; }
+
+  .hcl-code {
+    flex: 1;
+    background: var(--bg-code);
+    padding: 12px 16px;
+    overflow: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .hcl-code .keyword { color: #c084fc; }
+  .hcl-code .string { color: #86efac; }
+  .hcl-code .number { color: #fbbf24; }
+  .hcl-code .comment { color: #4b5563; font-style: italic; }
+  .hcl-code .block-name { color: #67e8f9; }
+  .hcl-code .attr { color: #93c5fd; }
+  .hcl-code .bracket { color: #6b7280; }
+
+  /* ===== PROPERTY PANEL ===== */
+  .property-panel {
+    width: 300px;
+    background: var(--bg-panel);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .property-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .property-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .property-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--orange-dim);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .property-header-title {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .property-header-type {
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-muted);
+  }
+
+  .property-close {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .property-close:hover { background: var(--accent-dim); color: var(--text-primary); }
+  .property-close svg { width: 14px; height: 14px; }
+
+  .property-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .property-section {
+    margin-bottom: 20px;
+  }
+
+  .property-section-title {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .property-field {
+    margin-bottom: 14px;
+  }
+
+  .property-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .property-label .required {
+    color: var(--red);
+    font-size: 10px;
+  }
+
+  .property-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .property-input {
+    width: 100%;
+    height: 34px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    color: var(--text-primary);
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .property-input:focus { border-color: var(--accent); }
+
+  .property-select {
+    width: 100%;
+    height: 34px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0 10px;
+    color: var(--text-primary);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .property-actions {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .property-action-btn {
+    flex: 1;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+
+  .property-action-btn:hover { background: var(--accent-dim); color: var(--accent-light); }
+  .property-action-btn.danger { border-color: rgba(239, 68, 68, 0.3); color: var(--red); }
+  .property-action-btn.danger:hover { background: var(--red-dim); }
+  .property-action-btn svg { width: 14px; height: 14px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+</style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+      <line x1="12" y1="22" x2="12" y2="15.5"/>
+      <polyline points="22 8.5 12 15.5 2 8.5"/>
+    </svg>
+    TF Visual
+  </div>
+
+  <div class="toolbar-group">
+    <button class="tb-btn" title="Undo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+    </button>
+    <button class="tb-btn" title="Redo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    </button>
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <div class="toolbar-group">
+    <button class="tb-btn active" title="Toggle sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+    </button>
+    <button class="tb-btn active" title="Toggle preview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <button class="tb-btn active" title="Toggle properties">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+    </button>
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <div class="toolbar-group">
+    <button class="tb-btn" title="Export .tf">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+    </button>
+    <button class="tb-btn" title="Export ZIP">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+    <button class="tb-btn" title="Validate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </button>
+    <button class="tb-btn" title="Import">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </button>
+    <button class="tb-btn" title="Save">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    </button>
+    <button class="tb-btn" title="Language">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </button>
+  </div>
+
+  <div class="user-menu">
+    <div class="user-info">
+      <div class="user-avatar">AU</div>
+      <span class="user-name">Admin User</span>
+      <span class="user-role">admin</span>
+    </div>
+    <button class="logout-btn" title="Logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-search">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" type="text" placeholder="Search resources..." value="">
+      </div>
+    </div>
+
+    <div class="provider-tabs">
+      <button class="provider-tab active">AWS</button>
+      <button class="provider-tab">Azure</button>
+      <button class="provider-tab">GCP</button>
+    </div>
+
+    <div class="resource-list">
+      <div class="resource-group-title">EC2</div>
+      <div class="resource-item">
+        <div class="resource-icon aws">🖥</div>
+        <div>
+          <div class="resource-label">Instance</div>
+          <div class="resource-type">aws_instance</div>
+        </div>
+      </div>
+      <div class="resource-item">
+        <div class="resource-icon aws">🛡</div>
+        <div>
+          <div class="resource-label">Security Group</div>
+          <div class="resource-type">aws_security_group</div>
+        </div>
+      </div>
+      <div class="resource-item">
+        <div class="resource-icon aws">🔑</div>
+        <div>
+          <div class="resource-label">Key Pair</div>
+          <div class="resource-type">aws_key_pair</div>
+        </div>
+      </div>
+
+      <div class="resource-group-title">VPC</div>
+      <div class="resource-item">
+        <div class="resource-icon aws">🌐</div>
+        <div>
+          <div class="resource-label">VPC</div>
+          <div class="resource-type">aws_vpc</div>
+        </div>
+      </div>
+      <div class="resource-item">
+        <div class="resource-icon aws">📡</div>
+        <div>
+          <div class="resource-label">Subnet</div>
+          <div class="resource-type">aws_subnet</div>
+        </div>
+      </div>
+
+      <div class="resource-group-title">S3</div>
+      <div class="resource-item">
+        <div class="resource-icon aws">🪣</div>
+        <div>
+          <div class="resource-label">S3 Bucket</div>
+          <div class="resource-type">aws_s3_bucket</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANVAS + PREVIEW -->
+  <div class="canvas-area">
+    <div class="canvas-content">
+      <div class="canvas-grid"></div>
+
+      <!-- SVG Edges -->
+      <svg class="canvas-edges" viewBox="0 0 800 500">
+        <!-- VPC -> Subnet -->
+        <path d="M 120 230 Q 120 310 120 330" stroke-dasharray="6 3"/>
+        <polygon class="edge-arrow" points="120,338 115,328 125,328"/>
+
+        <!-- VPC -> Security Group -->
+        <path d="M 200 180 Q 350 140 420 160" stroke-dasharray="6 3"/>
+        <polygon class="edge-arrow" points="428,162 418,155 422,165"/>
+
+        <!-- Security Group -> Instance -->
+        <path d="M 500 210 Q 580 240 620 260" stroke-dasharray="6 3"/>
+        <polygon class="edge-arrow" points="628,264 618,258 622,268"/>
+
+        <!-- Subnet -> Instance -->
+        <path d="M 200 380 Q 400 420 620 330" stroke-dasharray="6 3"/>
+        <polygon class="edge-arrow" points="628,327 618,332 624,335"/>
+      </svg>
+
+      <!-- Node: VPC -->
+      <div class="canvas-node" style="left: 30px; top: 120px;">
+        <div class="handle handle-bottom"></div>
+        <div class="handle handle-right"></div>
+        <div class="canvas-node-header">
+          <div class="canvas-node-icon" style="background: var(--orange-dim); color: var(--orange);">🌐</div>
+          <div>
+            <div class="canvas-node-title">Main VPC</div>
+            <div class="canvas-node-type">aws_vpc</div>
+          </div>
+        </div>
+        <div class="canvas-node-attrs">
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">cidr_block</span>
+            <span class="canvas-node-attr-val">"10.0.0.0/16"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node: Subnet -->
+      <div class="canvas-node" style="left: 30px; top: 330px;">
+        <div class="handle handle-top"></div>
+        <div class="handle handle-right"></div>
+        <div class="canvas-node-header">
+          <div class="canvas-node-icon" style="background: var(--orange-dim); color: var(--orange);">📡</div>
+          <div>
+            <div class="canvas-node-title">Public Subnet</div>
+            <div class="canvas-node-type">aws_subnet</div>
+          </div>
+        </div>
+        <div class="canvas-node-attrs">
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">cidr_block</span>
+            <span class="canvas-node-attr-val">"10.0.1.0/24"</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node: Security Group (SELECTED) -->
+      <div class="canvas-node selected" style="left: 420px; top: 100px;">
+        <div class="handle handle-left"></div>
+        <div class="handle handle-bottom"></div>
+        <div class="canvas-node-header">
+          <div class="canvas-node-icon" style="background: var(--orange-dim); color: var(--orange);">🛡</div>
+          <div>
+            <div class="canvas-node-title">Web SG</div>
+            <div class="canvas-node-type">aws_security_group</div>
+          </div>
+        </div>
+        <div class="canvas-node-attrs">
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">name</span>
+            <span class="canvas-node-attr-val">"web-sg"</span>
+          </div>
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">vpc_id</span>
+            <span class="canvas-node-attr-val">aws_vpc.main</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Node: Instance -->
+      <div class="canvas-node" style="left: 620px; top: 240px;">
+        <div class="handle handle-left"></div>
+        <div class="handle handle-top"></div>
+        <div class="canvas-node-header">
+          <div class="canvas-node-icon" style="background: var(--orange-dim); color: var(--orange);">🖥</div>
+          <div>
+            <div class="canvas-node-title">Web Server</div>
+            <div class="canvas-node-type">aws_instance</div>
+          </div>
+        </div>
+        <div class="canvas-node-attrs">
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">ami</span>
+            <span class="canvas-node-attr-val">"ami-0c55b159"</span>
+          </div>
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">instance_type</span>
+            <span class="canvas-node-attr-val">"t3.micro"</span>
+          </div>
+          <div class="canvas-node-attr">
+            <span class="canvas-node-attr-key">subnet_id</span>
+            <span class="canvas-node-attr-val">aws_subnet.pub</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Controls -->
+      <div class="canvas-controls">
+        <button class="canvas-ctrl-btn">+</button>
+        <button class="canvas-ctrl-btn">−</button>
+        <button class="canvas-ctrl-btn">⊡</button>
+      </div>
+      <div class="canvas-zoom">100%</div>
+    </div>
+
+    <!-- HCL Preview -->
+    <div class="hcl-preview">
+      <div class="hcl-preview-header">
+        <div class="hcl-preview-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          HCL Preview
+        </div>
+        <button class="hcl-copy-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+      <div class="hcl-code">
+<span class="comment"># Infrastructure generated by TF Visual</span>
+
+<span class="keyword">resource</span> <span class="bracket">"</span><span class="block-name">aws_vpc</span><span class="bracket">"</span> <span class="bracket">"</span><span class="block-name">main</span><span class="bracket">"</span> <span class="bracket">{</span>
+  <span class="attr">cidr_block</span>           = <span class="string">"10.0.0.0/16"</span>
+  <span class="attr">enable_dns_support</span>   = <span class="number">true</span>
+  <span class="attr">enable_dns_hostnames</span> = <span class="number">true</span>
+<span class="bracket">}</span>
+
+<span class="keyword">resource</span> <span class="bracket">"</span><span class="block-name">aws_subnet</span><span class="bracket">"</span> <span class="bracket">"</span><span class="block-name">public</span><span class="bracket">"</span> <span class="bracket">{</span>
+  <span class="attr">vpc_id</span>     = <span class="string">aws_vpc.main.id</span>
+  <span class="attr">cidr_block</span> = <span class="string">"10.0.1.0/24"</span>
+<span class="bracket">}</span>
+
+<span class="keyword">resource</span> <span class="bracket">"</span><span class="block-name">aws_security_group</span><span class="bracket">"</span> <span class="bracket">"</span><span class="block-name">web</span><span class="bracket">"</span> <span class="bracket">{</span>
+  <span class="attr">name</span>   = <span class="string">"web-sg"</span>
+  <span class="attr">vpc_id</span> = <span class="string">aws_vpc.main.id</span>
+<span class="bracket">}</span>
+
+<span class="keyword">resource</span> <span class="bracket">"</span><span class="block-name">aws_instance</span><span class="bracket">"</span> <span class="bracket">"</span><span class="block-name">web</span><span class="bracket">"</span> <span class="bracket">{</span>
+  <span class="attr">ami</span>           = <span class="string">"ami-0c55b159cbfafe1f0"</span>
+  <span class="attr">instance_type</span> = <span class="string">"t3.micro"</span>
+  <span class="attr">subnet_id</span>     = <span class="string">aws_subnet.public.id</span>
+  <span class="attr">vpc_security_group_ids</span> = [<span class="string">aws_security_group.web.id</span>]
+<span class="bracket">}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPERTY PANEL -->
+  <div class="property-panel">
+    <div class="property-header">
+      <div class="property-header-info">
+        <div class="property-header-icon">🛡</div>
+        <div>
+          <div class="property-header-title">Web SG</div>
+          <div class="property-header-type">aws_security_group</div>
+        </div>
+      </div>
+      <button class="property-close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="property-body">
+      <div class="property-section">
+        <div class="property-section-title">Basic</div>
+
+        <div class="property-field">
+          <div class="property-label">name <span class="required">*</span></div>
+          <div class="property-desc">Security group name</div>
+          <input class="property-input" type="text" value="web-sg">
+        </div>
+
+        <div class="property-field">
+          <div class="property-label">description</div>
+          <div class="property-desc">Description of the security group</div>
+          <input class="property-input" type="text" value="Security group for web servers">
+        </div>
+
+        <div class="property-field">
+          <div class="property-label">vpc_id <span class="required">*</span></div>
+          <div class="property-desc">VPC ID to associate with</div>
+          <input class="property-input" type="text" value="aws_vpc.main.id">
+        </div>
+      </div>
+
+      <div class="property-section">
+        <div class="property-section-title">Tags</div>
+
+        <div class="property-field">
+          <div class="property-label">Name</div>
+          <input class="property-input" type="text" value="web-sg">
+        </div>
+
+        <div class="property-field">
+          <div class="property-label">Environment</div>
+          <select class="property-select">
+            <option>production</option>
+            <option selected>staging</option>
+            <option>development</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="property-actions">
+      <button class="property-action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Duplicate
+      </button>
+      <button class="property-action-btn danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Delete
+      </button>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
