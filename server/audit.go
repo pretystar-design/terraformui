@@ -145,4 +145,3 @@ func handleAuditLog(store *SessionStore, log *AuditLog) http.HandlerFunc {
 		json.NewEncoder(w).Encode(entries)
 	}
 }
-}
