@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Search } from 'lucide-react'
 import { providerCatalog, searchResources } from '@/lib/provider-data'
+
+// Debounce delay for search (ms)
+const SEARCH_DEBOUNCE_MS = 150
 
 // Provider icon mapping
 const providerIcons: Record<string, string> = {
@@ -19,9 +22,18 @@ const providerIconClasses: Record<string, string> = {
 export function ResourcePalette() {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
   const [activeProvider, setActiveProvider] = useState('aws')
 
-  const filtered = query ? searchResources(query) : null
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query)
+    }, SEARCH_DEBOUNCE_MS)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  const filtered = debouncedQuery ? searchResources(debouncedQuery) : null
   const catalogs = providerCatalog.filter((c) => !query || c.provider === activeProvider)
 
   const handleDragStart = (e: React.DragEvent, type: string, provider: string) => {

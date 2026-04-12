@@ -3,8 +3,11 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { PropertyPanelLayout } from '@/components/layout/property-panel-layout'
 import { PreviewPanel } from '@/components/layout/preview-panel'
 import { Toolbar } from '@/components/toolbar'
+import { useAutoSave } from '@/hooks'
 
 export function AppLayout() {
+  useAutoSave()
+
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden" style={{ background: 'var(--bg-app)' }}>
       <Toolbar />

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Undo2,
@@ -15,6 +15,9 @@ import {
   CheckCircle,
   AlertCircle,
   LogOut,
+  ChevronDown,
+  FolderOpen,
+  Plus,
 } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvas-store'
 import { useProjectStore } from '@/store/project-store'
@@ -40,6 +43,10 @@ export function Toolbar() {
   const clearValidationErrors = useCanvasStore((s) => s.clearValidationErrors)
   const saveCurrentProject = useProjectStore((s) => s.saveCurrentProject)
   const saveStatus = useProjectStore((s) => s.saveStatus)
+  const projects = useProjectStore((s) => s.projects)
+  const currentProject = useProjectStore((s) => s.currentProject)
+  const switchProject = useProjectStore((s) => s.switchProject)
+  const createProject = useProjectStore((s) => s.createProject)
   const { hcl } = useHCLPreview()
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
@@ -47,6 +54,33 @@ export function Toolbar() {
   const [showImport, setShowImport] = useState(false)
   const [validationResult, setValidationResult] = useState<ReturnType<typeof validateNodes> | null>(null)
   const [validating, setValidating] = useState(false)
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false)
+  const [newProjectName, setNewProjectName] = useState('')
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowProjectDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleCreateProject = () => {
+    if (newProjectName.trim()) {
+      createProject(newProjectName.trim())
+      setNewProjectName('')
+      setShowProjectDropdown(false)
+    }
+  }
+
+  const handleSwitchProject = (id: string) => {
+    switchProject(id)
+    setShowProjectDropdown(false)
+  }
 
   const handleExportTF = () => {
     if (hcl) exportAsTF(hcl, 'main.tf')
@@ -92,11 +126,80 @@ export function Toolbar() {
         <div className="absolute bottom-[-1px] left-0 right-0 h-[1px]"
           style={{ background: 'linear-gradient(90deg, var(--accent) 0%, transparent 60%)', opacity: 0.4 }} />
 
-        {/* Logo + Undo/Redo */}
+        {/* Logo + Project Switcher + Undo/Redo */}
         <div className="flex items-center gap-1">
-          <span className="mr-4 font-bold text-[var(--accent-light)]" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.5px', fontSize: '16px' }}>
+          <span className="mr-2 flex items-center gap-2 font-bold text-[var(--accent-light)]" style={{ fontFamily: "'Space Grotesk', sans-serif", letterSpacing: '-0.5px', fontSize: '16px' }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+              <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/>
+              <line x1="12" y1="22" x2="12" y2="15.5"/>
+              <polyline points="22 8.5 12 15.5 2 8.5"/>
+            </svg>
             TF Visual
           </span>
+
+          {/* Project Switcher */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setShowProjectDropdown(!showProjectDropdown)}
+              className="flex items-center gap-1.5 rounded px-2.5 py-1.5 text-[12px] font-medium transition-all duration-150 hover:bg-[var(--accent-dim)]"
+              style={{ color: 'var(--text-primary)', background: showProjectDropdown ? 'var(--accent-dim)' : 'transparent' }}
+            >
+              <FolderOpen className="h-3.5 w-3.5" style={{ color: 'var(--accent)' }} />
+              <span className="max-w-[120px] truncate">{currentProject?.name || 'No Project'}</span>
+              <ChevronDown className={`h-3 w-3 transition-transform ${showProjectDropdown ? 'rotate-180' : ''}`} style={{ color: 'var(--text-muted)' }} />
+            </button>
+
+            {/* Dropdown */}
+            {showProjectDropdown && (
+              <div
+                className="absolute left-0 top-full z-50 mt-1 w-[220px] rounded-lg border shadow-lg"
+                style={{ background: 'var(--bg-panel)', borderColor: 'var(--border)' }}
+              >
+                <div className="max-h-[200px] overflow-y-auto p-1">
+                  {projects.length === 0 ? (
+                    <div className="px-3 py-2 text-[11px]" style={{ color: 'var(--text-muted)' }}>No projects yet</div>
+                  ) : (
+                    projects.map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => handleSwitchProject(p.id)}
+                        className={`w-full rounded px-3 py-2 text-left text-[12px] transition-colors ${
+                          p.id === currentProject?.id ? 'bg-[var(--accent-dim)] text-[var(--accent-light)]' : 'hover:bg-[var(--bg-card)] text-[var(--text-primary)]'
+                        }`}
+                      >
+                        <div className="truncate font-medium">{p.name}</div>
+                        <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                          {p.nodeCount} nodes · {new Date(p.lastModified).toLocaleDateString()}
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+                <div className="border-t p-2" style={{ borderColor: 'var(--border)' }}>
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      placeholder="New project..."
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
+                      className="flex-1 rounded border bg-[var(--bg-input)] px-2 py-1.5 text-[11px] outline-none focus:border-[var(--accent)]"
+                      style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+                    />
+                    <button
+                      onClick={handleCreateProject}
+                      disabled={!newProjectName.trim()}
+                      className="flex items-center justify-center rounded px-2 py-1.5 transition-colors disabled:opacity-50"
+                      style={{ background: 'var(--accent)', color: 'white' }}
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button onClick={undo} title={t('toolbar.undo')}
             className="flex h-[34px] w-[34px] items-center justify-center rounded text-[var(--text-secondary)] transition-all duration-150 hover:bg-[var(--accent-dim)] hover:text-[var(--accent-light)]">
             <Undo2 className="h-4 w-4" />

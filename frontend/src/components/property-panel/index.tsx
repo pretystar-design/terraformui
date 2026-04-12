@@ -231,7 +231,7 @@ export function PropertyPanel() {
               type="text"
               className="w-full h-[34px] rounded border bg-[var(--bg-input)] px-2.5 text-[12px] outline-none transition-colors focus:border-[var(--accent)]"
               style={{ borderColor: 'var(--border)', fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-primary)' }}
-              value={(selectedNode.attributes.tags as any)?.Name || selectedNode.label || ''}
+              value={typeof selectedNode.attributes.tags === 'object' && selectedNode.attributes.tags !== null ? (selectedNode.attributes.tags as Record<string, unknown>).Name as string ?? '' : ''}
               onChange={(e) => handleAttrChange('tags_Name', e.target.value)}
             />
           </div>
@@ -240,7 +240,7 @@ export function PropertyPanel() {
             <select
               className="w-full h-[34px] rounded border bg-[var(--bg-input)] px-2.5 text-[12px] outline-none cursor-pointer transition-colors focus:border-[var(--accent)]"
               style={{ borderColor: 'var(--border)', fontFamily: "'DM Sans', sans-serif", color: 'var(--text-primary)', appearance: 'none' }}
-              value={(selectedNode.attributes.tags as any)?.Environment || 'staging'}
+              value={typeof selectedNode.attributes.tags === 'object' && selectedNode.attributes.tags !== null ? (selectedNode.attributes.tags as Record<string, unknown>).Environment as string ?? 'staging' : 'staging'}
               onChange={(e) => handleAttrChange('tags_Environment', e.target.value)}
             >
               <option value="production">production</option>

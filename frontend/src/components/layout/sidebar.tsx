@@ -7,7 +7,7 @@ export function Sidebar() {
   if (!showSidebar) return null
 
   return (
-    <div className="w-[260px] shrink-0 flex flex-col"
+    <div className="h-full w-[260px] shrink-0 flex flex-col overflow-hidden"
       style={{ background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)' }}>
       <ResourcePalette />
     </div>

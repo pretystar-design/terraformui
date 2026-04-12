@@ -80,10 +80,57 @@ function pushUndo(state: CanvasState): CanvasState {
   }
 }
 
+// Demo nodes matching the mockup design
+const DEMO_NODES: CanvasNode[] = [
+  {
+    id: 'vpc_main',
+    type: 'aws_vpc',
+    label: 'Main VPC',
+    provider: 'aws',
+    position: { x: 30, y: 120 },
+    attributes: { cidr_block: '10.0.0.0/16' },
+    metadata: { createdAt: Date.now(), updatedAt: Date.now() },
+  },
+  {
+    id: 'subnet_pub',
+    type: 'aws_subnet',
+    label: 'Public Subnet',
+    provider: 'aws',
+    position: { x: 30, y: 330 },
+    attributes: { cidr_block: '10.0.1.0/24', vpc_id: 'aws_vpc.main' },
+    metadata: { createdAt: Date.now(), updatedAt: Date.now() },
+  },
+  {
+    id: 'sg_web',
+    type: 'aws_security_group',
+    label: 'Web SG',
+    provider: 'aws',
+    position: { x: 420, y: 100 },
+    attributes: { name: 'web-sg', vpc_id: 'aws_vpc.main' },
+    metadata: { createdAt: Date.now(), updatedAt: Date.now() },
+  },
+  {
+    id: 'instance_web',
+    type: 'aws_instance',
+    label: 'Web Server',
+    provider: 'aws',
+    position: { x: 620, y: 240 },
+    attributes: { ami: 'ami-0c55b159', instance_type: 't3.micro', subnet_id: 'aws_subnet.pub' },
+    metadata: { createdAt: Date.now(), updatedAt: Date.now() },
+  },
+]
+
+const DEMO_EDGES: CanvasEdge[] = [
+  { id: 'vpc->subnet', source: 'vpc_main', target: 'subnet_pub', type: 'dependency' },
+  { id: 'vpc->sg', source: 'vpc_main', target: 'sg_web', type: 'dependency' },
+  { id: 'sg->instance', source: 'sg_web', target: 'instance_web', type: 'dependency' },
+  { id: 'subnet->instance', source: 'subnet_pub', target: 'instance_web', type: 'dependency' },
+]
+
 export const useCanvasStore = create<CanvasState>((set) => ({
-  // Initial state
-  nodes: [],
-  edges: [],
+  // Initial state with demo nodes
+  nodes: DEMO_NODES,
+  edges: DEMO_EDGES,
   variables: [],
   outputs: [],
   selectedNodeId: null,
